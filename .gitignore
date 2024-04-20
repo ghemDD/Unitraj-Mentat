@@ -1,0 +1,63 @@
+venv/**
+motionnet/datasets/dlav_data/**
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[co]
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+env/
+ENV/
+/.python-version
+
+# Dependency directories
+lib/
+libs/
+vendor/
+vendors/
+node_modules/
+jspm_packages/
+bower_components/
+
+# OS or editor specific files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.cache
+*.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Other
+dist/
+build/
+*.egg-info/
+*.egg
+*.mo
+*.pot
+*.orig
+*.rej
+*.class
+*.dll
+*.exe
+*.pdb
+*.pdb.lock
+*.so
