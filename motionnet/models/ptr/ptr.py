@@ -124,7 +124,7 @@ class PositionalEncoding(nn.Module):
         self.register_parameter('pe', nn.Parameter(pe, requires_grad=False))
 
     def forward(self, x):
-        print("DimCheck : PE", self.pe.size())
+        #print("DimCheck : PE", self.pe.size())
         x = x + self.pe[:x.size(0), :]
 
         return self.dropout(x)
@@ -273,13 +273,14 @@ class PTR(BaseModel):
         temporal_attn_agents_emb = torch.zeros_like(agents_emb).to(agents_emb.device)
 
         for i in range(N):
-            print("DimCheck : temporal attn agents emb", temporal_attn_agents_emb[:, :,  i, :].size())
+            #print("DimCheck : temporal attn agents emb", temporal_attn_agents_emb[:, :,  i, :].size())
             temporal_attn_agents_emb[:, :, i, :] = self.pos_encoder(agents_emb[:, :, i, :])
-            print("DimCheck: temporal_attn_agents_emb post PE ", temporal_attn_agents_emb[:, :, i, :].size())
-            temporal_attn_agents_emb[:, :,  i, :] = layer.forward(temporal_attn_agents_emb[:, :,  i, :], src_key_padding_mask=torch.permute(agent_masks[:, :, i], (1, 0))) # [N, B, H] 
+            
+            #print("DimCheck: temporal_attn_agents_emb post PE ", temporal_attn_agents_emb[:, :, i, :].size())
+            temporal_attn_agents_emb[:, :,  i, :] = layer.forward(temporal_attn_agents_emb[:, :,  i, :], src_key_padding_mask=agent_masks[:, :, i]) # [N, B, H] 
             #print(f"DimCheck : post attention temporal attn agents emb {i} ", layer.forward(agents_emb[:, :, i, :]).size())
 
-            if torch.isnan(temporal_attn_agents_emb[:, :, i, :]).any():
+            if (torch.isnan(temporal_attn_agents_emb[:, :, i, :]).any()):
                 print("NAN Detected", temporal_attn_agents_emb[:, :, i, :])
                 print("NAN Detected", agent_masks[:,:,i])   
         

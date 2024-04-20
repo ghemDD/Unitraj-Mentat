@@ -7,8 +7,8 @@ devices: [0]
 
 # data related
 load_num_workers: 0
-train_data_path: ["datasets/dlav_data/dlav_data/train"]
-val_data_path: ["datasets/dlav_data/dlav_data/val"]
+train_data_path: ["data_samples/nuscenes"]
+val_data_path: ["data_samples/nuscenes"]
 max_data_num: [1000]
 past_len: 21 # 0.1s
 future_len: 60 # 0.1s
