@@ -12,7 +12,7 @@ val_data_path: ["data_samples/nuscenes"]
 max_data_num: [1000]
 past_len: 21 # 0.1s
 future_len: 60 # 0.1s
-object_type: ['VEHICLE']#, 'PEDESTRIAN', 'CYCLIST']
+object_type: ['VEHICLE'] #, 'PEDESTRIAN', 'CYCLIST']
 line_type: ['lane','stop_sign','road_edge','road_line','crosswalk','speed_bump'] #['lane','stop_sign','road_edge','road_line','crosswalk','speed_bump']
 masked_attributes: ['z_axis, size'] # 'z_axis, size, velocity, acceleration, heading'
 trajectory_sample_interval: 1 # 0.1s

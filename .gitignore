@@ -1,5 +1,10 @@
-venv/**
-motionnet/datasets/dlav_data/**
+lightning_logs/
+outputs/
+venv/
+motionnet/datasets/dlav_data/
+motionnet/outputs
+motionnet/data/
+motionnet/wandb/
 
 # Python specific
 __pycache__/
