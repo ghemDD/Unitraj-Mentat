@@ -1,7 +1,7 @@
 # exp setting
-exp_name: 'ptr'
-ckpt_path: motionnet/vqjts7vt/checkpoints/epoch=98-val/brier_fde=3.34.ckpt
-seed: 42
+exp_name: 'ptrexp'
+ckpt_path: null
+seed: 0
 debug: False
 devices: [0]
 
@@ -11,7 +11,7 @@ num_modes: 6
 hidden_size: 128
 num_encoder_layers: 2
 num_decoder_layers: 2
-tx_hidden_size: 384
+tx_hidden_size: 768
 tx_num_heads: 16
 dropout: 0.1
 entropy_weight: 40.0
@@ -19,21 +19,20 @@ kl_weight: 20.0
 use_FDEADE_aux_loss: True
 
 # train
-max_epochs: 100
+max_epochs: 80
 learning_rate: 0.00075 
-learning_rate_sched: [10, 20, 30, 40, 50]
+learning_rate_sched: [10, 20, 30, 40, 50, 60, 65, 70, 75]
 optimizer: Adam 
 scheduler: multistep 
 ewc_lambda: 2000
-train_batch_size: 128 
+train_batch_size: 64 
 eval_batch_size: 256 
 grad_clip_norm: 5
 
 # data related
 load_num_workers: 8
 train_data_path: ["data/dlav_data/train"]
-# val_data_path: ["data/dlav_data/val"]
-val_data_path: ["data/dlav_data/test_easy"]
+val_data_path: ["data/dlav_data/val"]
 max_data_num: [1000000]
 max_num_agents: 15
 map_range: 100
