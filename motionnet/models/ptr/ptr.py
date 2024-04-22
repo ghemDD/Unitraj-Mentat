@@ -124,9 +124,7 @@ class PositionalEncoding(nn.Module):
         self.register_parameter('pe', nn.Parameter(pe, requires_grad=False))
 
     def forward(self, x):
-        #print("DimCheck : PE", self.pe.size())
         x = x + self.pe[:x.size(0), :]
-
         return self.dropout(x)
 
 
@@ -265,28 +263,16 @@ class PTR(BaseModel):
         :param agent_masks: (B, T, N)
         :return: (T, B, N, H)
         '''
-        print("DimCheck: agents size", agents_emb.size())
-        print("DimCheck: agent_masks", agent_masks.size())
-
-        # number of agents 
-        N = agents_emb.size(2)
-        temporal_attn_agents_emb = torch.zeros_like(agents_emb).to(agents_emb.device)
-
-        for i in range(N):
-            #print("DimCheck : temporal attn agents emb", temporal_attn_agents_emb[:, :,  i, :].size())
-            temporal_attn_agents_emb[:, :, i, :] = self.pos_encoder(agents_emb[:, :, i, :])
-            
-            #print("DimCheck: temporal_attn_agents_emb post PE ", temporal_attn_agents_emb[:, :, i, :].size())
-            temporal_attn_agents_emb[:, :,  i, :] = layer.forward(temporal_attn_agents_emb[:, :,  i, :], src_key_padding_mask=agent_masks[:, :, i]) # [N, B, H] 
-            #print(f"DimCheck : post attention temporal attn agents emb {i} ", layer.forward(agents_emb[:, :, i, :]).size())
-
-            if (torch.isnan(temporal_attn_agents_emb[:, :, i, :]).any()):
-                print("NAN Detected", temporal_attn_agents_emb[:, :, i, :])
-                print("NAN Detected", agent_masks[:,:,i])   
-        
-        #print("Final DimCheck :", temporal_attn_agents_emb.size())
-
-        return temporal_attn_agents_emb
+        ######################## Your code here ########################
+        T_obs = agents_emb.size(0)
+        B = agent_masks.size(0)
+        num_agents = agent_masks.size(2)
+        temp_masks = agent_masks.permute(0, 2, 1).reshape(-1, T_obs)
+        temp_masks[:, -1][temp_masks.sum(-1) == T_obs] = False  # Ensure that agent's that don't exist don't make NaN.
+        agents_temp_emb = layer(self.pos_encoder(agents_emb.reshape(T_obs, B * (num_agents), -1)),
+                                src_key_padding_mask=temp_masks)
+        ################################################################
+        return agents_temp_emb.view(T_obs, B, num_agents, -1)
 
     def social_attn_fn(self, agents_emb, agent_masks, layer):
         '''
@@ -297,19 +283,13 @@ class PTR(BaseModel):
         :param agent_masks: (B, T, N)
         :return: (T, B, N, H)
         '''
-        T = agents_emb.size(0)
-        social_attn_agents_emb = torch.zeros_like(agents_emb).to(agents_emb.device)
-
-        for i in range(T):
-            #print("DimCheck: social attn agents ", social_attn_agents_emb[i, :,  :, :].size())
-            #print("DimCheck: agents masks ", agent_masks.size())
-            
-            social_attn_agents_emb[i, :,  :, :] = layer.forward(agents_emb[i, :, :, :], src_key_padding_mask=torch.permute(agent_masks[:, i, :], (1, 0))) 
-            #print("DimCheck : social attn agents_emb", social_attn_agents_emb[i, :,  :, :].size())
-        
-        #print("Final DimCheck :", social_attn_agents_emb.size())
-
-        return social_attn_agents_emb
+        ######################## Your code here ########################
+        T_obs, B, num_agents, dim = agents_emb.shape
+        agents_emb = agents_emb.permute(2, 1, 0, 3).reshape(num_agents, B * T_obs, -1)
+        agents_soc_emb = layer(agents_emb, src_key_padding_mask=agent_masks.view(-1, num_agents))
+        agents_soc_emb = agents_soc_emb.view(num_agents, B, T_obs, -1).permute(2, 1, 0, 3)
+        ################################################################
+        return agents_soc_emb
 
     def _forward(self, inputs):
         '''
@@ -336,13 +316,9 @@ class PTR(BaseModel):
         ######################## Your code here ########################
         # Apply temporal attention layers and then the social attention layers on agents_emb, each for L_enc times.
         for i in range(self.L_enc):
-            print(f"Social-temporal attention ----- step {i}")
-            agents_emb = self.temporal_attn_fn(agents_emb, opps_masks, self.temporal_attn_layers[i])
-            #print("DimCheck : temporal_agents ", agents_emb.size())
-            
-            agents_emb = self.social_attn_fn(agents_emb, opps_masks, self.social_attn_layers[i])
-            #print("DimCheck : social agents ", agents_emb.size())
-            
+            agents_emb = self.temporal_attn_fn(agents_emb, opps_masks, layer=self.temporal_attn_layers[i])
+            agents_emb = self.social_attn_fn(agents_emb, opps_masks, layer=self.social_attn_layers[i])
+        ################################################################
 
         ego_soctemp_emb = agents_emb[:, :, 0]  # take ego-agent encodings only.
 
