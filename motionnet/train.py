@@ -1,3 +1,4 @@
+import os
 import pytorch_lightning as pl
 import torch
 
@@ -30,6 +31,7 @@ def train(cfg):
     call_backs = []
 
     checkpoint_callback = ModelCheckpoint(
+        dirpath=os.path.join(os.getcwd(), 'lightning_logs', cfg.exp_name),
         monitor='val/brier_fde',    # Replace with your validation metric
         filename='{epoch}-{val/brier_fde:.2f}',
         save_top_k=1,

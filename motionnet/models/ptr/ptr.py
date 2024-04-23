@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from motionnet.models.base_model.base_model import BaseModel
-from torch.optim.lr_scheduler import MultiStepLR
+from torch.optim.lr_scheduler import MultiStepLR, CosineAnnealingLR
 from torch import optim
 from scipy import special
 from torch.distributions import MultivariateNormal, Laplace
@@ -385,9 +385,19 @@ class PTR(BaseModel):
 
 
     def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr= self.config['learning_rate'],eps=0.0001)
-        scheduler = MultiStepLR(optimizer, milestones=self.config['learning_rate_sched'], gamma=0.5,
-                                           verbose=True)
+        lr = self.config['learning_rate']
+        optimizer = optim.Adam(self.parameters(), lr=lr)
+        scheduler = None
+        if self.config['scheduler'] == 'cosine':
+            scheduler = CosineAnnealingLR(optimizer, 
+                                         T_max=self.config['max_epochs'], 
+                                         eta_min=lr * 0.02,
+                                         verbose=True)
+        elif self.config['scheduler'] == 'multistep':
+            scheduler = MultiStepLR(optimizer, 
+                                    milestones=self.config['learning_rate_sched'], 
+                                    gamma=0.5,
+                                    verbose=True)
         return [optimizer], [scheduler]
 
 
