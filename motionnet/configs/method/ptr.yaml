@@ -1,6 +1,6 @@
 # exp setting
 exp_name: 'ptr'
-# ckpt_path: motionnet/v0/checkpoints/epoch=98-val/brier_fde=3.34.ckpt
+# ckpt_path: lightning_logs/baseline/checkpoints/epoch=98-val/brier_fde=3.34.ckpt
 ckpt_path: null
 seed: 42
 debug: False
