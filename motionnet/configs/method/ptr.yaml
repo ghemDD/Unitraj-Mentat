@@ -1,6 +1,7 @@
 # exp setting
 exp_name: 'ptr'
-ckpt_path: motionnet/vqjts7vt/checkpoints/epoch=98-val/brier_fde=3.34.ckpt
+# ckpt_path: motionnet/v0/checkpoints/epoch=98-val/brier_fde=3.34.ckpt
+ckpt_path: null
 seed: 42
 debug: False
 devices: [0]
@@ -32,8 +33,8 @@ grad_clip_norm: 5
 # data related
 load_num_workers: 8
 train_data_path: ["data/dlav_data/train"]
-# val_data_path: ["data/dlav_data/val"]
-val_data_path: ["data/dlav_data/test_easy"]
+val_data_path: ["data/dlav_data/val"] # for training
+# val_data_path: ["data/dlav_data/test_easy"] # for generating predictions
 max_data_num: [1000000]
 max_num_agents: 15
 map_range: 100
