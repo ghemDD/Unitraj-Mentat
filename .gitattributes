@@ -1,0 +1,4 @@
+motionnet/motionnet/v1/checkpoints/epoch=79-val/brier_fde=3.41.ckpt filter=lfs diff=lfs merge=lfs -text
+motionnet/motionnet/v2/checkpoints/epoch=49-val/brier_fde=3.30.ckpt filter=lfs diff=lfs merge=lfs -text
+motionnet/lightning_logs/baseline/checkpoints/epoch=98-val/brier_fde=3.34.ckpt filter=lfs diff=lfs merge=lfs -text
+motionnet/lightning_logs/ptrcos256/checkpoints/epoch=88-val/brier_fde=3.30.ckpt filter=lfs diff=lfs merge=lfs -text
