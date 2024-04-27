@@ -275,19 +275,6 @@ class PTR(BaseModel):
         agents_temporal_emb = layer(agents_temporal_pos_enc, src_key_padding_mask=temp_masks).view(T, B, N, H)
         ################################################################
 
-        '''#Pre-refactor
-        T_obs = agents_emb.size(0)
-        B = agent_masks.size(0)
-        num_agents = agent_masks.size(2)
-        temp_masks = agent_masks.permute(0, 2, 1).reshape(-1, T_obs)
-        temp_masks[:, -1][temp_masks.sum(-1) == T_obs] = False  # Ensure that agent's that don't exist don't make NaN.
-        agents_temp_emb = layer(self.pos_encoder(agents_emb.reshape(T_obs, B * (num_agents), -1)),
-                                src_key_padding_mask=temp_masks)
-        agents_temp_emb = agents_temp_emb.view(T_obs, B, num_agents, -1)
-        
-        # Check value at the first epoch
-        # print("ValueCheck : equivalent temporal_attn_fn ", torch.equal(agents_temporal_emb, agents_temp_emb))'''
-
         return agents_temporal_emb
 
     def social_attn_fn(self, agents_emb, agent_masks, layer):
@@ -307,15 +294,6 @@ class PTR(BaseModel):
         agents_social_emb_flat = layer(agents_emb_flat, src_key_padding_mask=rearrange(agent_masks, 'B T N -> (B T) N'))
         agents_social_emb = rearrange(agents_social_emb_flat.view(N, B, T, H), 'N B T H -> T B N H')
         ################################################################
-
-        '''#Pre-refactor : 
-        T_obs, B, num_agents, dim = agents_emb.shape
-        agents_emb = agents_emb.permute(2, 1, 0, 3).reshape(num_agents, B * T_obs, -1)
-        agents_soc_emb = layer(agents_emb, src_key_padding_mask=agent_masks.view(-1, num_agents))
-        agents_soc_emb = agents_soc_emb.view(num_agents, B, T_obs, -1).permute(2, 1, 0, 3)
-        
-        # Check value at the first epoch
-        #print("ValueCheck : equivalent social_attn_fn ", torch.equal(agents_social_emb, agents_soc_emb))'''
         
         return agents_social_emb
 
