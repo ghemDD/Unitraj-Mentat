@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from einops import rearrange
 from motionnet.models.base_model.base_model import BaseModel
 from torch.optim.lr_scheduler import MultiStepLR, CosineAnnealingLR
 from torch import optim
@@ -264,6 +265,17 @@ class PTR(BaseModel):
         :return: (T, B, N, H)
         '''
         ######################## Your code here ########################
+        # extract dimensions
+        T, B, N, H = agents_emb.size()
+
+        # flatten along the batch
+        temp_masks = rearrange(agent_masks, 'B T N -> (B N) T')
+        temp_masks[:, -1][temp_masks.sum(-1) == T] = False
+        agents_temporal_pos_enc = self.pos_encoder(rearrange(agents_emb, 'T B N H -> T (B N) H'))
+        agents_temporal_emb = layer(agents_temporal_pos_enc, src_key_padding_mask=temp_masks).view(T, B, N, H)
+        ################################################################
+
+        '''#Pre-refactor
         T_obs = agents_emb.size(0)
         B = agent_masks.size(0)
         num_agents = agent_masks.size(2)
@@ -271,8 +283,12 @@ class PTR(BaseModel):
         temp_masks[:, -1][temp_masks.sum(-1) == T_obs] = False  # Ensure that agent's that don't exist don't make NaN.
         agents_temp_emb = layer(self.pos_encoder(agents_emb.reshape(T_obs, B * (num_agents), -1)),
                                 src_key_padding_mask=temp_masks)
-        ################################################################
-        return agents_temp_emb.view(T_obs, B, num_agents, -1)
+        agents_temp_emb = agents_temp_emb.view(T_obs, B, num_agents, -1)
+        
+        # Check value at the first epoch
+        # print("ValueCheck : equivalent temporal_attn_fn ", torch.equal(agents_temporal_emb, agents_temp_emb))'''
+
+        return agents_temporal_emb
 
     def social_attn_fn(self, agents_emb, agent_masks, layer):
         '''
@@ -284,12 +300,24 @@ class PTR(BaseModel):
         :return: (T, B, N, H)
         '''
         ######################## Your code here ########################
+        # extract dimensions
+        T, B, N, H = agents_emb.size()
+
+        agents_emb_flat = rearrange(agents_emb, 'T B N H -> N (B T) H')
+        agents_social_emb_flat = layer(agents_emb_flat, src_key_padding_mask=rearrange(agent_masks, 'B T N -> (B T) N'))
+        agents_social_emb = rearrange(agents_social_emb_flat.view(N, B, T, H), 'N B T H -> T B N H')
+        ################################################################
+
+        '''#Pre-refactor : 
         T_obs, B, num_agents, dim = agents_emb.shape
         agents_emb = agents_emb.permute(2, 1, 0, 3).reshape(num_agents, B * T_obs, -1)
         agents_soc_emb = layer(agents_emb, src_key_padding_mask=agent_masks.view(-1, num_agents))
         agents_soc_emb = agents_soc_emb.view(num_agents, B, T_obs, -1).permute(2, 1, 0, 3)
-        ################################################################
-        return agents_soc_emb
+        
+        # Check value at the first epoch
+        #print("ValueCheck : equivalent social_attn_fn ", torch.equal(agents_social_emb, agents_soc_emb))'''
+        
+        return agents_social_emb
 
     def _forward(self, inputs):
         '''

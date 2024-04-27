@@ -1,6 +1,6 @@
 # exp setting
-exp_name: 'ptr'
-# ckpt_path: lightning_logs/baseline/checkpoints/epoch=98-val/brier_fde=3.34.ckpt
+exp_name: 'sanity_check_refactor'
+#ckpt_path: "lightning_logs/ptr/epoch=67-val/brier_fde=3.33.ckpt"
 ckpt_path: null
 seed: 42
 debug: False
@@ -20,7 +20,7 @@ kl_weight: 20.0
 use_FDEADE_aux_loss: True
 
 # train
-max_epochs: 100
+max_epochs: 5
 learning_rate: 0.00075 
 learning_rate_sched: [10, 20, 30, 40, 50]
 optimizer: Adam 
@@ -34,8 +34,8 @@ grad_clip_norm: 5
 load_num_workers: 8
 train_data_path: ["data/dlav_data/train"]
 val_data_path: ["data/dlav_data/val"] # for training
-# val_data_path: ["data/dlav_data/test_easy"] # for generating predictions
-max_data_num: [1000000]
+#val_data_path: ["data/dlav_data/test_easy"] # for generating predictions
+max_data_num: [100000]
 max_num_agents: 15
 map_range: 100
 max_num_roads: 256

@@ -3,3 +3,4 @@ torch
 pytorch-lightning
 hydra-core
 scikit-learn
+einops

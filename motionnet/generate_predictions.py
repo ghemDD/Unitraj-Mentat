@@ -7,6 +7,8 @@ from models import build_model
 from datasets import build_dataset
 import hydra
 from omegaconf import OmegaConf
+from utils.visualization import visualize_prediction
+import os
 
 
 def to_device(input, device):
@@ -38,6 +40,7 @@ def generate_predictions(cfg):
     test_dataset = build_dataset(cfg,val=True)
     test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, collate_fn=test_dataset.collate_fn)  # Batch size can be adjusted
 
+    os.makedirs("visualizations", exist_ok=True)
     predictions = []
     # Generate predictions
     with torch.no_grad():
@@ -57,6 +60,11 @@ def generate_predictions(cfg):
             model_input['roads'] = roads
             output = model._forward(model_input)
             predictions.extend(output['predicted_trajectory'].cpu().numpy()[..., :2])
+
+            # draw visualizations
+            plt = visualize_prediction(batch, output)
+            plt.savefig(f"visualizations/visualization_{i}.png")
+            plt.close()
 
     # Save predictions to a csv file for submission
     with open("submission.csv", mode='w', newline='') as file:
