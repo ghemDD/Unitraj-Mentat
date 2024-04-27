@@ -40,13 +40,19 @@ def train(cfg):
 
     call_backs.append(checkpoint_callback)
 
-    train_loader = DataLoader(
-        train_set, batch_size=train_batch_size, num_workers=cfg.load_num_workers, drop_last=False,
-    collate_fn=train_set.collate_fn, shuffle=False)
+    train_loader = DataLoader(train_set, 
+                              batch_size=train_batch_size, 
+                              shuffle=False,
+                              num_workers=cfg.load_num_workers, 
+                              drop_last=False,
+                              collate_fn=train_set.collate_fn)
 
-    val_loader = DataLoader(
-        val_set, batch_size=eval_batch_size, num_workers=cfg.load_num_workers, shuffle=False, drop_last=False,
-    collate_fn=train_set.collate_fn)
+    val_loader = DataLoader(val_set, 
+                            batch_size=eval_batch_size, 
+                            num_workers=cfg.load_num_workers, 
+                            shuffle=False, 
+                            drop_last=False,
+                            collate_fn=train_set.collate_fn)
 
     trainer = pl.Trainer(
         max_epochs=cfg.method.max_epochs,
