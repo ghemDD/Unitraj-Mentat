@@ -3,6 +3,7 @@ motionnet/datasets/dlav_data/
 motionnet/outputs
 motionnet/data/
 motionnet/wandb/
+motionnet/motionnet/
 
 # Python specific
 __pycache__/
