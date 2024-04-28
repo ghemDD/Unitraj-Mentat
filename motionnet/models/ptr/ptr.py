@@ -392,7 +392,13 @@ class PTR(BaseModel):
 
     def configure_optimizers(self):
         lr = self.config['learning_rate']
-        optimizer = optim.Adam(self.parameters(), lr=lr)
+        optimizer = None
+        if self.config['optimizer'] == "Adam":
+            optimizer = optim.Adam(self.parameters(), lr=lr)
+        elif self.config['optimizer'] == "AdamW":
+            optimizer = optim.AdamW(self.parameters(), lr=lr)
+        else:
+            raise NotImplementedError
         scheduler = None
         if self.config['scheduler'] == 'cosine':
             scheduler = CosineAnnealingLR(optimizer, 
@@ -404,6 +410,8 @@ class PTR(BaseModel):
                                     milestones=self.config['learning_rate_sched'], 
                                     gamma=0.5,
                                     verbose=True)
+        else:
+            raise NotImplementedError
         return [optimizer], [scheduler]
 
 
